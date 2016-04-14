@@ -28,14 +28,43 @@ public class CompareSets {
 
          sets.add(set);
       }
+      
+      String[][] interaction = new String[sets.size()][sets.size()];
 
-      CIDR test = new CIDR("10.10.0.0/8");
-      System.out.println(test.contains(new CIDR("10.20.0.0/16")));
+      for (int i = 0; i < sets.size(); i++) {
+         for (int j = 0; j < sets.size(); j++) {
+            interaction[i][j] = interactionSets(sets.get(i), sets.get(j));
+         }
+      }
 
       printLists(sets);
+      System.out.println();
+      printInteractions(interaction);
+   }
+
+   public static String interactionSets(List<CIDR> set, List<CIDR> compareTo) {
+      List<CIDR> comp = new ArrayList<CIDR>(compareTo);
+      int originalSize = comp.size();
+
+      for (CIDR c1 : compareTo) {
+         for (CIDR c2 : set) {
+            // System.out.println(c1 + " " + c2);
+            if (comp.contains(c1) && c2.contains(c1))
+               comp.remove(c1);
+         }
+      }
+
+      if (comp.size() == 0)
+         return "Contains";
+      if (comp.size() < originalSize)
+         return "Intersects";
+
+      return "Adjacent";
    }
 
    public static void printLists(List<List<CIDR>> sets) {
+      System.out.println("Sets: ");
+
       int i = 0;
       for (List<CIDR> set : sets) {
          System.out.print("Set " + ++i + ": {");
@@ -49,6 +78,21 @@ public class CompareSets {
          }
 
          System.out.println("}");
+      }
+   }
+
+   public static void printInteractions(String[][] interaction) {
+      System.out.println("Interaction Matrix (interpreted as row <Contains/Intersects/Adjacent> col): ");
+
+      for (int i = 1; i <= interaction.length; i++)
+         System.out.printf("%12s", "Set " + i);
+
+      for (int i = 0; i < interaction.length; i++) {
+         System.out.println();
+         System.out.printf("Set %-3d", i + 1);
+         for (int j = 0; j < interaction[i].length; j++) {
+            System.out.printf("%-12s", interaction[i][j]);
+         }
       }
    }
 }

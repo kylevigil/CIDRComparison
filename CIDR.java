@@ -17,10 +17,15 @@ public class CIDR {
       }
 
       bitMask = (1 << (32 - Integer.parseInt(s.nextToken()))) - 1;
+
+      if (bitMask == 0) bitMask = -1; 
+      
       //System.out.println(String.format("0x%X", bitMask));
    }
 
    public boolean contains(CIDR comp) {
+      if (comp.getBitMask() > bitMask)
+         return false;
       return (ip | bitMask) == (comp.getIP() | bitMask);
    }
 
