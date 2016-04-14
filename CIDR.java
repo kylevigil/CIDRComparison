@@ -10,21 +10,21 @@ public class CIDR {
       StringTokenizer s = new StringTokenizer(cidr, "./");
 
       ip = 0;
-      //System.out.println(cidr);
       for (int i = 0; i < 4; i++) {
          int toInsert = Integer.parseInt(s.nextToken());
          ip |= (toInsert << (24 - (i * 8)));
       }
 
-      bitMask = (1 << (32 - Integer.parseInt(s.nextToken()))) - 1;
+      int numBits = Integer.parseInt(s.nextToken());
 
-      if (bitMask == 0) bitMask = -1; 
-      
-      //System.out.println(String.format("0x%X", bitMask));
+      bitMask = (1 << (32 - numBits)) - 1;
+
+      if (numBits == 0) bitMask = -1;
+      if (numBits == 32) bitMask = 0;
    }
 
    public boolean contains(CIDR comp) {
-      if (comp.getBitMask() > bitMask)
+      if (comp.getBitMask() > bitMask && bitMask != -1)
          return false;
       return (ip | bitMask) == (comp.getIP() | bitMask);
    }
