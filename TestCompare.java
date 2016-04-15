@@ -12,7 +12,7 @@ public class TestCompare {
    public static void main(String[] args) {
       List<List<CIDR>> sets = new ArrayList<>();
       Scanner s;
-
+      
       if (args.length != 1) {
          System.out.println("Usage: java CompareSets <input file>");
          return;

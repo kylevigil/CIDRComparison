@@ -27,24 +27,28 @@ public class CIDR {
       int numBits = Integer.parseInt(s.nextToken()); // number of bits in bitMask
 
       // Creating the bit mask based off the last cidr value
-      bitMask = (1 << (32 - numBits)) - 1;
-
-      // handle the case of the last value being 32 or 0
-      if (numBits == 0) bitMask = -1; 
-      if (numBits == 32) bitMask = 0;
+      bitMask = 0xffffffff << (32 - numBits); 
+      if (numBits == 0) bitMask = 0;
+      // System.out.println(Integer.toHexString(bitMask));
    }
 
    /**
-    * Determine if one CIDR contains another
+    * Determine if one CIDR contains, intersects, or is adjacent to another
     * @param  comp - CIDR to test if it falls in the range of this CIDR
-    * @return      True if comp falls in the range of present CIDR, false otherwise
+    * @return        0-adjacent, 1-intersecting, 2-containse
     */
-   public boolean contains(CIDR comp) {
-      // if the range of comp is larger than the present CIDR then it can't contain it
-      if (comp.bitMask > bitMask && bitMask != -1)
-         return false;
+   public int contains(CIDR comp) {
+      int lower = ip & bitMask;
+      int upper = lower + ~bitMask;
+      int compLower = comp.ip & comp.bitMask;
+      int compUpper = compLower + ~comp.bitMask;
 
-      return (ip | bitMask) == (comp.ip | bitMask); // test if with the bit mask the values are equal
+      // using unsigned comparisons test if compare CIDR is outside or within range of CIDR
+      if (Integer.compareUnsigned(upper, compUpper) >= 0 && Integer.compareUnsigned(lower, compLower) <= 0)
+         return 2;
+      if (Integer.compareUnsigned(compUpper, lower) < 0 || Integer.compareUnsigned(compLower, upper) > 0)
+         return 0;
+      return 1;
    }
 
    /**

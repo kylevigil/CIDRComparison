@@ -33,19 +33,21 @@ public class CompareSets {
     */
    private static int interactionSets(List<CIDR> set, List<CIDR> compareTo) {
       List<CIDR> comp = new ArrayList<CIDR>(compareTo);
-      int originalSize = comp.size();
+      boolean intersects = false;
 
       // loop through compare to set and original set
       for (CIDR c1 : compareTo) {
          for (CIDR c2 : set) {
-            if (comp.contains(c1) && c2.contains(c1))
+            if (comp.contains(c1) && c2.contains(c1) == 2)
                comp.remove(c1); // if it is contained, remove from temp list
+            if (c2.contains(c1) > 0)
+               intersects = true;
          }
       }
 
       if (comp.size() == 0) // if the size of the temp list is 0, all the compareTo values are contained
          return 2;
-      if (comp.size() < originalSize) // if it isn't 0 but is less than it was originally then it is intersect
+      if (intersects)
          return 1;
 
       return 0; // otherwise they are adjacent
@@ -79,7 +81,7 @@ public class CompareSets {
     * @param interaction - interaction matrix to print
     */
    public static void printMatrix(int[][] interaction) {
-      System.out.println("Interaction Matrix (interpreted as row <[C]ontains/[I]ntersects/[A]djacent to> col): ");
+      System.out.println("Interaction Matrix (Row <[C]ontains/[I]ntersects/[A]djacent to> Col): ");
 
       System.out.print("Set|");
       for (int i = 1; i <= interaction.length; i++)
