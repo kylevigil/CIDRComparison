@@ -46,7 +46,8 @@ ______________________________________________________________________________
 TestCompare.java
 ______________________________________________________________________________
 This is the testing class of the other classes and function. It reads in CIDR
-sets from a file specified in a command line argument. 
+sets from a file specified in a command line argument. The test function 
+assumes the input file format is correct and all CIDRs are valid.
 
 The format of the input file is as follows:
    * Each line in the input file represents a set
