@@ -1,87 +1,60 @@
-import java.io.*;
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
 
+/**
+ * Class containing functions in order to return back a matrix of comparison of sets of CIDR values.
+ */
 public class CompareSets {
-   public static void main(String[] args) {
-      List<List<CIDR>> sets = new ArrayList<>();
-      Scanner s;
-
-      if (args.length != 1) {
-         System.out.println("Usage: java CompareSets <input file>");
-         return;
-      }
-
-      try {
-         s = new Scanner(new File(args[0]));
-      } catch (FileNotFoundException e) {
-         System.out.println("Incorrect file name: " + args[0]);
-         return;
-      }
-
-      while (s.hasNextLine()) {
-         List<CIDR> set = new ArrayList<>();
-         Scanner c = new Scanner(s.nextLine());
-         c.useDelimiter(", ");
-
-         while (c.hasNext())
-            set.add(new CIDR(c.next()));
-         sets.add(set);
-      }
-      
+   /**
+    * Function to return the matrix of levels of interaction between sets of CIDR values
+    * @param  sets - List of lists of CIDR values. Represents lists of sets
+    * @return      square int[][] matrix that contains numbers to represent level of interaction. 0-adjacent, 1-intersecting, 2-contains
+    */
+   public static int[][] returnInteractions(List<List<CIDR>> sets) {
       int[][] interaction = new int[sets.size()][sets.size()];
 
+      // loops through all sets twice to compare all set pairs
       for (int i = 0; i < sets.size(); i++) {
          for (int j = 0; j < sets.size(); j++) {
             if (i == j)
-               interaction[i][j] = 2;
+               interaction[i][j] = 2; // all values down the diagonal are contains because every set contains itself
             else 
                interaction[i][j] = interactionSets(sets.get(i), sets.get(j));
          }
       }
-
-      printLists(sets);
-      System.out.println();
-
-      Scanner input = new Scanner(System.in);
-      while (true) {
-         System.out.print("List (l) output, Matrix (m) output, or both (b): ");
-         String choice = input.next();
-         if (choice.equalsIgnoreCase("l")) {
-            printInteractions(interaction);
-            break;
-         } else if (choice.equalsIgnoreCase("m")) {
-            printMatrix(interaction);
-            break;     
-         } else if (choice.equalsIgnoreCase("b")) {
-            printInteractions(interaction);
-            System.out.println();
-            printMatrix(interaction);
-            break;
-         }
-            
-         System.out.println("invalid choice");
-      }
+      return interaction;
    }
 
-   public static int interactionSets(List<CIDR> set, List<CIDR> compareTo) {
+   /**
+    * Compare two sets to determine the level of interaction between the two.
+    * @param  set       - First set, is the set that is testing if the second set fits in it.
+    * @param  compareTo - Second set, is testing if it fits inside first set
+    * @return           - 0-adjacent, 1-intersecting, 2-contains
+    */
+   private static int interactionSets(List<CIDR> set, List<CIDR> compareTo) {
       List<CIDR> comp = new ArrayList<CIDR>(compareTo);
       int originalSize = comp.size();
 
+      // loop through compare to set and original set
       for (CIDR c1 : compareTo) {
          for (CIDR c2 : set) {
             if (comp.contains(c1) && c2.contains(c1))
-               comp.remove(c1);
+               comp.remove(c1); // if it is contained, remove from temp list
          }
       }
 
-      if (comp.size() == 0)
+      if (comp.size() == 0) // if the size of the temp list is 0, all the compareTo values are contained
          return 2;
-      if (comp.size() < originalSize)
+      if (comp.size() < originalSize) // if it isn't 0 but is less than it was originally then it is intersect
          return 1;
 
-      return 0;
+      return 0; // otherwise they are adjacent
    }
 
+   /**
+    * Prints out a list of all of the sets.
+    * @param sets - the sets to print out
+    */
    public static void printLists(List<List<CIDR>> sets) {
       System.out.println("Sets: ");
 
@@ -101,8 +74,12 @@ public class CompareSets {
       }
    }
 
+   /**
+    * Print out the interactions in matrix form.
+    * @param interaction - interaction matrix to print
+    */
    public static void printMatrix(int[][] interaction) {
-      System.out.println("Interaction Matrix (interpreted as row <[C]ontains/[I]ntersects/[A]djacent> col): ");
+      System.out.println("Interaction Matrix (interpreted as row <[C]ontains/[I]ntersects/[A]djacent to> col): ");
 
       System.out.print("Set|");
       for (int i = 1; i <= interaction.length; i++)
@@ -117,19 +94,23 @@ public class CompareSets {
          System.out.println();
          System.out.printf("%-3d|", i + 1);
          for (int j = 0; j < interaction[i].length; j++) {
-            String[] toPrint = {"A", "I", "C"};
+            String[] toPrint = {"A", "I", "C"}; // index of list is the interaction number
             System.out.printf("%4s", toPrint[interaction[i][j]]);
          }
       }
    }
 
+   /**
+    * Print out the interactions in list form. Skips comparison between sets and itself
+    * @param interaction - interaction matrix to print
+    */
    public static void printInteractions(int[][] interaction) {
       System.out.println("List of interaction:");
 
       for (int i = 0; i < interaction.length; i++) {
          for (int j = 0; j < interaction[i].length; j++) {
             if (i != j) {
-               String[] toPrint = {"is adjacent to", "intersects", "contains"};
+               String[] toPrint = {"is adjacent to", "intersects", "contains"}; // index of list is the interaction number
                System.out.printf("set %d %s set %d\n", i + 1, toPrint[interaction[i][j]], j + 1);
             }
          }
